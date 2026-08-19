@@ -95,3 +95,40 @@ float Perlin::noise(float x, float y) const {
 
     return mix(top, bottom, v);
 }
+
+float Perlin::fbm(float x, float y, int octaves, float lacunarity, float persistence) const{
+    //sum of octaves
+    float total = 0.0f;
+    //a quel point cette octave est serrée
+    float freq = 1.0f;
+    //a quel point cette octave compte
+    float amp = 1.0f;
+    //sum of amplitudes
+    float ampSum = 0.0f;
+
+    for (int i = 0; i < octaves; i++){
+        //bruit plus serré, on multiplie les coordonnées
+        total += noise(x*freq, y*freq)*amp;
+        //on retient l'amplitude
+        ampSum += amp;
+        //octave suivante
+        freq *= lacunarity;
+        amp *= persistence;
+    }
+
+    //faut diviser sinon le resultat grandirait avec le nbr d'octaves
+    return total / ampSum;
+}
+
+float Perlin::warp(float x, float y, int octaves, float lacunarity, float persistence, float strength) const {
+    //on build un vecteur de décalage (qx, qy) avec deux fbm
+    //two random constants 5.2 & 1.3 to see noise at two different places
+
+    float qx = fbm(x,y,octaves,lacunarity,persistence);
+    float qy = fbm(x+5.2f,y+1.3f,octaves,lacunarity,persistence);
+
+    //evalue le bruit final au point déplacé
+    return fbm(x + strength * qx, y + strength * qy, octaves, lacunarity, persistence);
+
+    //ça coute 3x plus cher qu'un fBm simple
+}
