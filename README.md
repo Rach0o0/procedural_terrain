@@ -75,3 +75,11 @@ il faut deux décalages, un pour x, un pour y sinon on décale toujours en diago
 ### Strength
 il dépend du CELL_SIZE
 Les coordonnées de bruit valent pixel/CELL_SIZE
+
+## Dérivées analytiques
+Le bruit me donne une altitude. La dérivée me donne la pente au même endroit
+
+### Usage
+- normales : Une normale est la direction perpendiculaire au sol. 
+- coloration par pente : La neige ne tient pas sur une paroi raide, donc au delà d'un certain angle c'est de la roche
+- faux effet d'érosion : les vallées restent lisses et les crêtes deviennent nettes

@@ -21,6 +21,11 @@ static float fade(float t){
     return t * t * t * (t * (t * 6 -15) + 10);
 }
 
+//dérivée de fade
+static float fadeD(float t){
+    return 30 * t * t * (t - 1) * (t - 1);
+}
+
 //mix a and b 
 static float mix(float a, float b, float t){
     return a + t * (b-a);
@@ -131,4 +136,85 @@ float Perlin::warp(float x, float y, int octaves, float lacunarity, float persis
     return fbm(x + strength * qx, y + strength * qy, octaves, lacunarity, persistence);
 
     //ça coute 3x plus cher qu'un fBm simple
+}
+
+NoiseD Perlin::noiseD(float x, float y) const {
+    float fx = std::floor(x);
+    float fy = std::floor(y);
+
+    int cellX = (int)fx & 255;
+    int cellY = (int)fy & 255;
+
+    float px = x - fx;
+    float py = y - fy;
+
+    float u = fade(px);
+    float v = fade(py);
+    float du = fadeD(px); //derivative
+    float dv = fadeD(py); //derivative
+
+    int left  = perm[cellX] + cellY;
+    int right = perm[cellX + 1] + cellY;
+
+    int h00 = perm[left];   
+    int h10 = perm[right];      
+    int h01 = perm[left + 1];    
+    int h11 = perm[right + 1]; 
+
+    float a = cornerValue(h00, px,     py);
+    float b = cornerValue(h10, px - 1, py);
+    float c = cornerValue(h01, px,     py - 1);
+    float d = cornerValue(h11, px - 1, py - 1);
+
+    //on recupere les fleches 
+    float ax = dirX[h00 & 7], ay = dirY[h00 & 7];
+    float bx = dirX[h10 & 7], by = dirY[h10 & 7];
+    float cx = dirX[h01 & 7], cy = dirY[h01 & 7];
+    float dx = dirX[h11 & 7], dy = dirY[h11 & 7];
+
+    //rewrite the mix in a developped way, la derivée s'ecrit facilement sous cette forme
+    float k1 = b - a;
+    float k2 = c - a;
+    float k3 = a - b - c + d;
+
+    NoiseD out;
+    out.value = a + k1 * u + k2 * v + k3 * u * v;
+
+    //derivative of the expression
+    out.dx = ax + (bx - ax) * u + (cx - ax) * v + (ax - bx - cx + dx) * u * v
+             + du * (k1 + k3 * v);
+
+    out.dy = ay + (by - ay) * u + (cy - ay) * v + (ay - by - cy + dy) * u * v
+             + dv * (k2 + k3 * u);
+
+    return out;
+}
+
+NoiseD Perlin::fbmD(float x, float y, int octaves, float lacunarity, float persistence) const {
+    float total = 0.0f;
+    float totalDx = 0.0f;
+    float totalDy = 0.0f;
+
+    float freq = 1.0f;
+    float amp = 1.0f;
+    float ampSum = 0.0f;
+
+    for (int i = 0; i < octaves; i++){
+        NoiseD n = noiseD(x * freq, y * freq);
+
+        total += n.value * amp;
+
+        totalDx += n.dx * amp * freq;
+        totalDy += n.dy * amp * freq;
+
+        ampSum += amp;
+        freq *= lacunarity;
+        amp *= persistence;
+    }
+
+    NoiseD out;
+    out.value = total / ampSum;
+    out.dx = totalDx / ampSum;
+    out.dy = totalDy / ampSum;
+    return out;
 }

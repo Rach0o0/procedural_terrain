@@ -12,6 +12,8 @@ add_executable(terrain
     src/main.cpp
     src/image_io.cpp
     src/perlin.cpp
+    src/terrain.cpp
+    src/plate.cpp
 )
 
 target_include_directories(terrain PRIVATE src)
