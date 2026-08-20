@@ -83,3 +83,24 @@ Le bruit me donne une altitude. La dérivée me donne la pente au même endroit
 - normales : Une normale est la direction perpendiculaire au sol. 
 - coloration par pente : La neige ne tient pas sur une paroi raide, donc au delà d'un certain angle c'est de la roche
 - faux effet d'érosion : les vallées restent lisses et les crêtes deviennent nettes
+
+## Mesh
+
+C'est deux listes.
+- Les sommets : une liste de points dans l'espace (chacun a trois coordonnées)
+- Les faces : une liste de triangle. chaque triangle ne stocke pas des points, il stocke trois numéros (positions des sommets dans la première liste)
+
+### Passage aux sommets
+Chaque case de la Heightmap devient un sommet 
+- position = (x, altitude, y) -> convention de Blender
+
+### Passage aux triangles
+Chaque case de la grille, délimitée par 4 sommets voisins, devient deux triangles.
+
+### Ordre des sommets
+Un triangle -> deux faces
+On doit savoir laquelle est le dessus
+-> si les trois sommets se lisent dans le sens inverse des aiguilles d'une montre, c'est ce côté qui est la face visible
+
+Ca se calcule avec un produit vectoriel. 
+

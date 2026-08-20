@@ -4,6 +4,7 @@
 #include "image_io.hpp"
 #include "plate.hpp"
 #include "terrain.hpp"
+#include "mesh.hpp"
 
 const size_t SIZE = 512;
 const unsigned int SEED = 1337;

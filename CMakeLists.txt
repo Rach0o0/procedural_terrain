@@ -14,6 +14,7 @@ add_executable(terrain
     src/perlin.cpp
     src/terrain.cpp
     src/plate.cpp
+    src/mesh.cpp
 )
 
 target_include_directories(terrain PRIVATE src)
