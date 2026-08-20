@@ -104,3 +104,17 @@ On doit savoir laquelle est le dessus
 
 Ca se calcule avec un produit vectoriel. 
 
+### Normals
+si on ne fournit rien, Blender calcule une normale par triangle.
+On donne une normale par sommet et le moteur interpole alors entre les trois sommets pour varier l'éclairage. 
+-> mensonge visuel inventé par Gouraud puis Phong 
+
+## OBJ Format
+Un fichier texte, une ligne par élément et un mot clé au début de chaque ligne.
+
+v 12.5 60.2 8.0        un sommet, ses coordonnées x y z
+vn 0.1 0.98 -0.15      une normale, ses composantes x y z
+f 1//1 513//513 2//2   un triangle
+
+### f
+Une face liste ses trois sommets, et chaque sommet peut référencer 3 choses (position, une coordonnée de texture, une normale)

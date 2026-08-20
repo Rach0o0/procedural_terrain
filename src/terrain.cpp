@@ -1,6 +1,27 @@
 #include "terrain.hpp"
 #include <cmath>
 
+void normalize(Heightmap& map){
+    float lo = 1e9f;
+    float hi = -1e9f;
+
+    for (size_t y = 0; y < map.height(); y++){
+        for (size_t x = 0; x < map.width(); x++){
+            float v = map.at(x,y);
+            if (v < lo) lo = v;
+            if (v > hi) hi = v;
+        }
+    }
+
+    float range = hi - lo;
+    if (range < 1e-9f) range = 1.0f;
+
+    for (size_t y = 0; y < map.height(); y++){
+        for (size_t x = 0; x < map.width(); x++){
+            map.at(x,y) = (map.at(x,y) - lo) / range;
+        }
+    }
+}
 
 Heightmap makeTerrain(size_t size, unsigned int seed, const TerrainParams& params) {
     //construit le générateur une seule fois avec une seed -> meme table 
@@ -29,6 +50,7 @@ Heightmap makeTerrain(size_t size, unsigned int seed, const TerrainParams& param
             map.at(x, y) = v;
         }
     }
+    normalize(map);
     return map;
 }
 

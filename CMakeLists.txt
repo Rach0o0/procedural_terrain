@@ -15,6 +15,7 @@ add_executable(terrain
     src/terrain.cpp
     src/plate.cpp
     src/mesh.cpp
+    src/obj_io.cpp
 )
 
 target_include_directories(terrain PRIVATE src)

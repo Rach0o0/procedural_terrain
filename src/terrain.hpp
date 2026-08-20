@@ -11,6 +11,9 @@ struct TerrainParams {
     float warp = 0.0f; //0 = no torsion
 };
 
+//etale les valeurs d'une carte entre 0 et 1
+void normalize(Heightmap& map);
+
 // Carte d'altitudes
 Heightmap makeTerrain(size_t size, unsigned int seed, const TerrainParams& params);
 
