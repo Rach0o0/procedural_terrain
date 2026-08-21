@@ -11,6 +11,7 @@ struct Vec3 {
 struct Mesh {
     std::vector<Vec3> positions; //list de sommets
     std::vector<Vec3> normals; 
+    std::vector<Vec3> colors; //r,g,b
     std::vector<int> indices; //3 integers per triangle
 };
 

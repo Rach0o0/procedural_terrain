@@ -1,12 +1,14 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <chrono>
 
 #include "image_io.hpp"
 #include "plate.hpp"
 #include "terrain.hpp"
 #include "mesh.hpp"
 #include "obj_io.hpp"
+#include "erosion.hpp"
 
 const size_t SIZE = 512;
 const unsigned int SEED = 1337;
@@ -40,26 +42,27 @@ void checkMesh(const Mesh& mesh) {
 
 int main() {
     TerrainParams params;
-    Heightmap map = makeTerrain(SIZE, SEED, params);
-    Mesh mesh = makeMesh(map, CELL_WORLD, AMPLITUDE);
+    
+    Heightmap before = makeTerrain(SIZE,SEED,params);
 
-    checkMesh(mesh);
+    Heightmap after = before;
+    ErosionParams ep;
+    auto t0 = std::chrono::steady_clock::now();
+    erode(after, ep, 12345);
+    auto t1 = std::chrono::steady_clock::now();
+    std::cout << "erosion : " << std::chrono::duration<float>(t1 - t0).count() << " s\n";
 
-    if (!writeOBJ(mesh, "output/terrain.obj")){
-        std::cerr << "erreur d'écriture de l'obj\n";
-        return 1;
-    }
 
-    //heighmap altitude vs slope
-    Heightmap slope  = makeSlope(SIZE, SEED, params);
-    std::vector<Heightmap> tiles = {map, slope};
+    float diff = 0.0f;
+    for (size_t y = 0; y < SIZE; y++)
+        for (size_t x = 0; x < SIZE; x++)
+            diff += std::fabs(after.at(x, y) - before.at(x, y));
+    std::cout << "matiere deplacee : " << diff << "\n";
+
+    std::vector<Heightmap> tiles = {before, after};
     Heightmap plate = makePlate(tiles);
 
-    // false : makePlate a deja tout mis dans [0,1].
-    if (!writeGrayscalePng(plate, "output/slope.png", false)) {
-        std::cerr << "erreur d'ecriture\n";
-        return 1;
-    }
+    writeGrayscalePng(plate, "output/erosion.png", false);
 
     std::cout << "ok\n";
     return 0;

@@ -9,8 +9,10 @@ bool writeOBJ(const Mesh& mesh, const std::string& path){
     }
 
     //sommets : un par ligne 
-    for (const Vec3& p : mesh.positions) {
-        file << "v " << p.x << " " << p.y << " " << p.z << "\n";
+    for (size_t i = 0; i < mesh.positions.size(); i++) {
+        const Vec3& p = mesh.positions[i];
+        const Vec3& c = mesh.colors[i];
+        file << "v " << p.x << " " << p.y << " " << p.z << " " << c.x << " " << c.y << " " << c.z << "\n";
     }
 
     //normals

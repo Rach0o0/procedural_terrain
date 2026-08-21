@@ -14,6 +14,46 @@ static float heightAt(const Heightmap& map, int x, int y, float amplitude){
 
 }
 
+//passe doucement de 0 à 1 quand x va de edge0 à edge1
+static float smoothstep(float edge0, float edge1, float x) {
+    float t = (x - edge0) / (edge1 - edge0);
+    if (t < 0.0f) t = 0.0f;
+    if (t > 1.0f) t = 1.0f;
+    return t * t * (3.0f - 2.0f * t);
+}
+
+/* __________________
+    COLORS
+___________________ */
+
+//mix colors (interpolation)
+static Vec3 mixColor(Vec3 a, Vec3 b, float t) {
+    Vec3 out;
+    out.x = a.x + t * (b.x - a.x);
+    out.y = a.y + t * (b.y - a.y);
+    out.z = a.z + t * (b.z - a.z);
+    return out;
+}
+
+static const Vec3 SAND  = {0.76f, 0.70f, 0.50f};
+static const Vec3 GRASS = {0.31f, 0.42f, 0.22f};
+static const Vec3 ROCK  = {0.42f, 0.40f, 0.38f};
+static const Vec3 SNOW  = {0.95f, 0.95f, 0.97f};
+
+static Vec3 pickColor(float height, float ny) {
+    //on empile les couches de bas en haut
+    Vec3 c = SAND;
+    c = mixColor(c, GRASS, smoothstep(0.10f, 0.25f, height));
+    c = mixColor(c, ROCK,  smoothstep(0.35f, 0.55f, height));
+    c = mixColor(c, SNOW,  smoothstep(0.70f, 0.85f, height));
+
+    //la pente ecrase tout : sur une paroi raide, c'est de la roche
+    float steep = smoothstep(0.85f, 0.65f, ny);
+    c = mixColor(c, ROCK, steep);
+
+    return c;
+}
+
 Mesh makeMesh(const Heightmap& map, float cellSize, float amplitude){
     size_t w = map.width();
     size_t h = map.height();
@@ -23,6 +63,7 @@ Mesh makeMesh(const Heightmap& map, float cellSize, float amplitude){
     //on reserve la place
     mesh.positions.reserve(w*h);
     mesh.normals.reserve(w*h);
+    mesh.colors.reserve(w*h);
     mesh.indices.reserve((w-1)*(h-1)*6);
 
     //sommets
@@ -52,6 +93,8 @@ Mesh makeMesh(const Heightmap& map, float cellSize, float amplitude){
             n.z /= len;
 
             mesh.normals.push_back(n);
+
+            mesh.colors.push_back(pickColor(map.at(x,y), n.y));
         }
     }
 

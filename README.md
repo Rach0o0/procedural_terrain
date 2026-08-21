@@ -118,3 +118,40 @@ f 1//1 513//513 2//2   un triangle
 
 ### f
 Une face liste ses trois sommets, et chaque sommet peut référencer 3 choses (position, une coordonnée de texture, une normale)
+
+## Coloration par altitude et par pente
+
+- L'altitude décide d'abord : sable en bas, herbe, roche, neige en haut
+- La pente corrige ensuite : parroi raide -> neige + terre ne tient pas (roche)
+
+
+# EROSION HYDRAULIQUE
+
+On lâche des gouttes d'eau, une par une et on voit ce qu'ils font.
+
+### Capacité
+Une goutte peut porter une certaine quantité de sédiment. C'est sa capacité ! 
+A chaque pas, elle compare ce qu'elle porte à ce qu'elle pourrait porter. 
+- Si elle porte moins que sa capacité, il lui reste de la place. Elle creuse le sol et charge ce qu'elle a arraché
+- Si elle porte plus, elle est en surcharge. Elle laisse tomber l'excédent.
+
+## Naive version
+
+Ce que fait une goutte : 
+- elle regarde ses voisins et va vers le plus bas
+- elle calcule combien de sédiment elle peut porter
+- si elle porte moins, elle creuse. Si elle porte plus, elle dépose
+- elle accélère en descendant
+- elle s'évaporte un peu
+
+Une goutte porte 5 nombres : 
+- x, y : sa position, en entiers
+- water : son volume d'eau
+- speed : sa vitesse
+- sediment : ce qu'elle transporte
+
+### Calcul de capacité
+
+capacite = denivele * vitesse * eau * facteur
+
+-> facteur est un reglage sans signification
